@@ -10,26 +10,40 @@ Vagrant.configure("2") do |config|
   # For a complete reference, please see the online documentation at
   # https://docs.vagrantup.com.
 
-  config.vm.define "web" do |web|
-    web.vm.box = "ubuntu/xenial64"
-    web.vm.hostname = 'web'
-    web.vm.box_url = "ubuntu/xenial64"
+  config.vm.define "web01" do |web01|
+    web01.vm.box = "ubuntu/xenial64"
+    web01.vm.hostname = 'web01'
+    web01.vm.box_url = "ubuntu/xenial64"
 
-    web.vm.network :public_network, ip: "192.168.1.101"
-    web.vm.network "forwarded_port", guest: 80, host: 8080
-    web.vm.provider :virtualbox do |v|
+    web01.vm.network :private_network, ip: "192.168.55.101"
+
+    web01.vm.provider :virtualbox do |v|
       v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
       v.customize ["modifyvm", :id, "--memory", 512]
-      v.customize ["modifyvm", :id, "--name", "web"]
+      v.customize ["modifyvm", :id, "--name", "web01"]
     end
   end
   
+  config.vm.define "web02" do |web02|
+    web02.vm.box = "ubuntu/xenial64"
+    web02.vm.hostname = 'web02'
+    web02.vm.box_url = "ubuntu/xenial64"
+
+    web02.vm.network :private_network, ip: "192.168.55.102"
+
+    web02.vm.provider :virtualbox do |v|
+      v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+      v.customize ["modifyvm", :id, "--memory", 512]
+      v.customize ["modifyvm", :id, "--name", "web02"]
+    end
+  end
+
   config.vm.define "db" do |db|
     db.vm.box = "ubuntu/xenial64"
     db.vm.hostname = 'db'
     db.vm.box_url = "ubuntu/xenial64"
 
-    db.vm.network :public_network, ip: "192.168.1.102"
+    db.vm.network :private_network, ip: "192.168.55.103"
 
     db.vm.provider :virtualbox do |v|
       v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
@@ -38,18 +52,30 @@ Vagrant.configure("2") do |config|
     end
   end
 
-  config.vm.define "master" do |master|
-    master.vm.box = "ubuntu/xenial64"
-    master.vm.hostname = 'master'
-    master.vm.box_url = "ubuntu/xenial64"
+  config.vm.define "manager" do |manager|
+    manager.vm.box = "ubuntu/xenial64"
+    manager.vm.hostname = 'manager'
+    manager.vm.box_url = "ubuntu/xenial64"
 
-    master.vm.network :public_network, ip: "192.168.1.100"
+    manager.vm.network :private_network, ip: "192.168.55.100"
 
-    master.vm.provider :virtualbox do |v|
+    manager.vm.provider :virtualbox do |v|
       v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
       v.customize ["modifyvm", :id, "--memory", 512]
-      v.customize ["modifyvm", :id, "--name", "master"]
+      v.customize ["modifyvm", :id, "--name", "manager"]
     end
   end
 
-end
+  config.vm.provision "shell", inline: <<-SHELL
+    sudo swapoff -a
+    sudo sh -c 'echo "192.168.55.100 manager" >> /etc/hosts'
+    sudo sh -c 'echo "192.168.55.101 web01" >> /etc/hosts'
+    sudo sh -c 'echo "192.168.55.102 web02" >> /etc/hosts'
+    sudo sh -c 'echo "192.168.55.103 db" >> /etc/hosts'
+    sudo sh -c 'echo "net.bridge.bridge-nf-call-ip6tables = 1" >> /etc/sysctl.d/k8s.conf'
+    sudo sh -c 'echo "net.bridge.bridge-nf-call-iptables = 1" >> /etc/sysctl.d/k8s.conf'
+    sudo sysctl --system    
+  SHELL
+  config.vm.provision "shell", path: 'docker.sh'
+  config.vm.provision "shell", path: 'kubernetes.sh'
+end  
