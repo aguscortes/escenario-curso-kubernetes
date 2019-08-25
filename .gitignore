@@ -1,5 +1,6 @@
-# Created by https://www.gitignore.io/api/linux,windows,vagrant
-# Edit at https://www.gitignore.io/?templates=linux,windows,vagrant
+
+# Created by https://www.gitignore.io/api/linux,windows
+# Edit at https://www.gitignore.io/?templates=linux,windows
 
 ### Linux ###
 *~
@@ -16,19 +17,10 @@
 # .nfs files are created when an open file is removed but is still being accessed
 .nfs*
 
-### Vagrant ###
-# General
-.vagrant/
-
-# Log files (if you are creating logs in debug mode, uncomment this)
-# *.logs
-
-### Vagrant Patch ###
-*.box
-
 ### Windows ###
 # Windows thumbnail cache files
 Thumbs.db
+Thumbs.db:encryptable
 ehthumbs.db
 ehthumbs_vista.db
 
@@ -50,5 +42,6 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
+*.log
 
-# End of https://www.gitignore.io/api/linux,windows,vagrant
+# End of https://www.gitignore.io/api/linux,windows

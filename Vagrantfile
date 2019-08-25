@@ -35,7 +35,7 @@ Vagrant.configure("2") do |config|
 
     wrk02.vm.provider :virtualbox do |v|
       v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
-      v.customize ["modifyvm", :id, "--memory", 512]
+      v.customize ["modifyvm", :id, "--memory", 1024]
       v.customize ["modifyvm", :id, "--name", "wrk02"]
     end
   end
@@ -50,29 +50,30 @@ Vagrant.configure("2") do |config|
 
     wrk03.vm.provider :virtualbox do |v|
       v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
-      v.customize ["modifyvm", :id, "--memory", 512]
+      v.customize ["modifyvm", :id, "--memory", 1024]
       v.customize ["modifyvm", :id, "--name", "wrk03"]
     end
   end
 
-  config.vm.define "manager" do |manager|
-    manager.vm.box = "ubuntu/xenial64"
-    manager.vm.hostname = 'manager'
-    manager.vm.box_url = "ubuntu/xenial64"
+  config.vm.define "master" do |master|
+    master.vm.box = "ubuntu/xenial64"
+    master.vm.hostname = 'master'
+    master.vm.box_url = "ubuntu/xenial64"
 
-    #manager.vm.network :private_network, ip: "192.168.55.100"
-    manager.vm.network "public_network", ip: "192.168.1.103"
+    #master.vm.network :private_network, ip: "192.168.55.100"
+    master.vm.network "public_network", ip: "192.168.1.103"
 
-    manager.vm.provider :virtualbox do |v|
+    master.vm.provider :virtualbox do |v|
       v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
-      v.customize ["modifyvm", :id, "--memory", 512]
-      v.customize ["modifyvm", :id, "--name", "manager"]
+      v.customize ["modifyvm", :id, "--memory", 1024]
+      v.customize ["modifyvm", :id, "--name", "master"]
     end
+    master.vm.provision "shell", path: 'kubeadm.sh'
   end
 
   config.vm.provision "shell", inline: <<-SHELL
     sudo swapoff -a
-    sudo sh -c 'echo "192.168.1.103 manager" >> /etc/hosts'
+    sudo sh -c 'echo "192.168.1.103 master" >> /etc/hosts'
     sudo sh -c 'echo "192.168.1.100 wrk01" >> /etc/hosts'
     sudo sh -c 'echo "192.168.1.101 wrk02" >> /etc/hosts'
     sudo sh -c 'echo "192.168.1.102 wrk03" >> /etc/hosts'
@@ -81,5 +82,5 @@ Vagrant.configure("2") do |config|
     sudo sysctl --system    
   SHELL
   config.vm.provision "shell", path: 'docker.sh'
-  config.vm.provision "shell", path: 'kubernetes.sh'
+  config.vm.provision "shell", path: 'kubernetes.sh'  
 end  
