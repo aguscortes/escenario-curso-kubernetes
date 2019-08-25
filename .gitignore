@@ -44,4 +44,7 @@ $RECYCLE.BIN/
 *.lnk
 *.log
 
+# Recycle Bin used on file shares
+.vagrant/
+
 # End of https://www.gitignore.io/api/linux,windows
