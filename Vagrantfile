@@ -10,45 +10,48 @@ Vagrant.configure("2") do |config|
   # For a complete reference, please see the online documentation at
   # https://docs.vagrantup.com.
 
-  config.vm.define "web01" do |web01|
-    web01.vm.box = "ubuntu/xenial64"
-    web01.vm.hostname = 'web01'
-    web01.vm.box_url = "ubuntu/xenial64"
+  config.vm.define "wrk01" do |wrk01|
+    wrk01.vm.box = "ubuntu/xenial64"
+    wrk01.vm.hostname = 'wrk01'
+    wrk01.vm.box_url = "ubuntu/xenial64"
 
-    web01.vm.network :private_network, ip: "192.168.55.101"
+    # wrk01.vm.network :private_network, ip: "192.168.55.101"
+    wrk01.vm.network "public_network", ip: "192.168.1.100"
 
-    web01.vm.provider :virtualbox do |v|
+    wrk01.vm.provider :virtualbox do |v|
       v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
       v.customize ["modifyvm", :id, "--memory", 512]
-      v.customize ["modifyvm", :id, "--name", "web01"]
+      v.customize ["modifyvm", :id, "--name", "wrk01"]
     end
   end
   
-  config.vm.define "web02" do |web02|
-    web02.vm.box = "ubuntu/xenial64"
-    web02.vm.hostname = 'web02'
-    web02.vm.box_url = "ubuntu/xenial64"
+  config.vm.define "wrk02" do |wrk02|
+    wrk02.vm.box = "ubuntu/xenial64"
+    wrk02.vm.hostname = 'wrk02'
+    wrk02.vm.box_url = "ubuntu/xenial64"
 
-    web02.vm.network :private_network, ip: "192.168.55.102"
+    #wrk02.vm.network :private_network, ip: "192.168.55.102"
+    wrk02.vm.network "public_network", ip: "192.168.1.101"
 
-    web02.vm.provider :virtualbox do |v|
+    wrk02.vm.provider :virtualbox do |v|
       v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
       v.customize ["modifyvm", :id, "--memory", 512]
-      v.customize ["modifyvm", :id, "--name", "web02"]
+      v.customize ["modifyvm", :id, "--name", "wrk02"]
     end
   end
 
-  config.vm.define "db" do |db|
-    db.vm.box = "ubuntu/xenial64"
-    db.vm.hostname = 'db'
-    db.vm.box_url = "ubuntu/xenial64"
+  config.vm.define "wrk03" do |wrk03|
+    wrk03.vm.box = "ubuntu/xenial64"
+    wrk03.vm.hostname = 'wrk03'
+    wrk03.vm.box_url = "ubuntu/xenial64"
 
-    db.vm.network :private_network, ip: "192.168.55.103"
+    #wrk03.vm.network :private_network, ip: "192.168.55.103"
+    wrk03.vm.network "public_network", ip: "192.168.1.102"
 
-    db.vm.provider :virtualbox do |v|
+    wrk03.vm.provider :virtualbox do |v|
       v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
       v.customize ["modifyvm", :id, "--memory", 512]
-      v.customize ["modifyvm", :id, "--name", "db"]
+      v.customize ["modifyvm", :id, "--name", "wrk03"]
     end
   end
 
@@ -57,7 +60,8 @@ Vagrant.configure("2") do |config|
     manager.vm.hostname = 'manager'
     manager.vm.box_url = "ubuntu/xenial64"
 
-    manager.vm.network :private_network, ip: "192.168.55.100"
+    #manager.vm.network :private_network, ip: "192.168.55.100"
+    manager.vm.network "public_network", ip: "192.168.1.103"
 
     manager.vm.provider :virtualbox do |v|
       v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
@@ -68,10 +72,10 @@ Vagrant.configure("2") do |config|
 
   config.vm.provision "shell", inline: <<-SHELL
     sudo swapoff -a
-    sudo sh -c 'echo "192.168.55.100 manager" >> /etc/hosts'
-    sudo sh -c 'echo "192.168.55.101 web01" >> /etc/hosts'
-    sudo sh -c 'echo "192.168.55.102 web02" >> /etc/hosts'
-    sudo sh -c 'echo "192.168.55.103 db" >> /etc/hosts'
+    sudo sh -c 'echo "192.168.1.103 manager" >> /etc/hosts'
+    sudo sh -c 'echo "192.168.1.100 wrk01" >> /etc/hosts'
+    sudo sh -c 'echo "192.168.1.101 wrk02" >> /etc/hosts'
+    sudo sh -c 'echo "192.168.1.102 wrk03" >> /etc/hosts'
     sudo sh -c 'echo "net.bridge.bridge-nf-call-ip6tables = 1" >> /etc/sysctl.d/k8s.conf'
     sudo sh -c 'echo "net.bridge.bridge-nf-call-iptables = 1" >> /etc/sysctl.d/k8s.conf'
     sudo sysctl --system    
